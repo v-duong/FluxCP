@@ -72,7 +72,7 @@ class Flux_LoginServer extends Flux_BaseServer {
 		}
 
      	if ($this->config->get('UseMD5')) {
-			$password = Flux::hashPassword($password);
+			$password = md5($password);
 		}
         
 		$sql  = "SELECT userid FROM {$this->loginDatabase}.login WHERE sex != 'S' AND group_id >= 0 ";
@@ -82,7 +82,7 @@ class Flux_LoginServer extends Flux_BaseServer {
 		else {
 			$sql .= 'AND CAST(userid AS BINARY) = ? ';
 		}
-		$sql .= "AND user_pass = ? LIMIT 1";
+		$sql .= "AND user_pass = MD5(CONCAT(?,`salt`)) LIMIT 1";
 		$sth  = $this->connection->getStatement($sql);
 		$sth->execute(array($username, $password));
 		
@@ -98,7 +98,7 @@ class Flux_LoginServer extends Flux_BaseServer {
 	/**
 	 *
 	 */
-	public function register($username, $password, $confirmPassword, $email,$email2, $gender, $birthdate, $securityCode)
+	public function register($username, $password, $confirmPassword, $email,$email2, $gender, $birthdate, $securityCode, $salt)
 	{
 		if (preg_match('/[^' . Flux::config('UsernameAllowedChars') . ']/', $username)) {
 			throw new Flux_RegisterError('Invalid character(s) used in username', Flux_RegisterError::INVALID_USERNAME);
@@ -191,12 +191,12 @@ class Flux_LoginServer extends Flux_BaseServer {
 		}
 		
 		if ($this->config->getUseMD5()) {
-			$password = Flux::hashPassword($password);
+			$password = Flux::hashPassword($password, $salt);
 		}
 		
-		$sql = "INSERT INTO {$this->loginDatabase}.login (userid, user_pass, email, sex, group_id, birthdate) VALUES (?, ?, ?, ?, ?, ?)";
+		$sql = "INSERT INTO {$this->loginDatabase}.login (userid, user_pass, email, sex, group_id, birthdate, salt) VALUES (?, ?, ?, ?, ?, ?, ?)";
 		$sth = $this->connection->getStatement($sql);
-		$res = $sth->execute(array($username, $password, $email, $gender, (int)$this->config->getGroupID(), date('Y-m-d', $birthdatestamp)));
+		$res = $sth->execute(array($username, $password, $email, $gender, (int)$this->config->getGroupID(), date('Y-m-d', $birthdatestamp), $salt));
 		
 		if ($res) {
 			$idsth = $this->connection->getStatement("SELECT LAST_INSERT_ID() AS account_id");

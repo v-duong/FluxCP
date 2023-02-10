@@ -49,8 +49,10 @@ for ($i = 0; $i < $passLength; ++$i) {
 }
 
 $unhashedNewPassword = $newPassword;
+$newsalt = md5(time());
+
 if ($loginAthenaGroup->loginServer->config->getUseMD5()) {
-	$newPassword = Flux::hashPassword($newPassword);
+	$newPassword = Flux::hashPassword($newPassword, $newsalt);
 }
 
 if (!$sth->execute(array($_SERVER['REMOTE_ADDR'], $newPassword, $reset->id))) {
