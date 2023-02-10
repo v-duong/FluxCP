@@ -3,7 +3,7 @@
 // the default, and should be changed as needed.
 return array(
 	'ServerAddress'				=> 'localhost',				// This value is the hostname:port under which Flux runs. (e.g., example.com or example.com:80)
-	'BaseURI'					=> 'fluxcp',						// The base URI is the base web root on which your application lies.
+	'BaseURI'					=> '',						// The base URI is the base web root on which your application lies.
 	'InstallerPassword'			=> 'secretpassword',		// Installer/updater password.
 	'RequireOwnership'			=> true,					// Require the executing user to be owner of the FLUX_ROOT/data/ directory tree? (Better for security)
 															// WARNING: This will be mostly IGNORED on non-POSIX-compliant OSes (e.g. Windows).
@@ -35,6 +35,7 @@ return array(
 	'SingleMatchRedirect'		=> true,					// Whether or not to redirect to view action from index page if only one match is returned (and action is allowed).
 	'SingleMatchRedirectItem'	=> false,					// Same as above, for item module.
 	'SingleMatchRedirectMobs'	=> false,					// Same as above, for monster module.
+	'RequireInviteCode'			=> true,
 	'UsernameAllowedChars'		=> 'a-zA-Z0-9_',			// PCRE Format Pattern. default: 'a-zA-Z0-9_' (alphanumeric and underscore)
 															// WARNING: This string isn't escaped so be careful which chars you use!
 															// PCRE Pattern Ref: http://php.net/manual/en/pcre.pattern.php
@@ -264,6 +265,7 @@ return array(
 			'MyAccountLabel'	=> array('module' => 'account', 'action' => 'view'),
 			'HistoryLabel'		=> array('module' => 'history'),
 			'ServiceDeskLabel'	=> array('module' => 'servicedesk'),
+			'InviteLabel'		=> array('module' => 'invite'),
 			'LogoutTitle'		=> array('module' => 'account', 'action' => 'logout'),
 		),
 		'DonationsLabel'		=> array(
@@ -417,6 +419,11 @@ return array(
 		'buyingstore'		=> array(
 			'index'			=> 'Buyers',
 		),
+		'invite'    		=> array(
+			'index'			=> 'Codes',
+			'add'			=> 'Add',
+			'delete'		=> 'Delete'
+		)
 	),
 
 	'AllowMD5PasswordSearch'		=> false,

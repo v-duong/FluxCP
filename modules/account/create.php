@@ -24,13 +24,14 @@ if (count($_POST)) {
 		$birthdate = $params->get('birthdate_date');
 		$code      = $params->get('security_code');
 		$salt 	   = md5(time());
+		$invite_code = trim($params->get('invite'));
 		
 		if (!($server = Flux::getServerGroupByName($serverGroupName))) {
 			throw new Flux_RegisterError('Invalid server', Flux_RegisterError::INVALID_SERVER);
 		}
 		
 		// Woohoo! Register ;)
-		$result = $server->loginServer->register($username, $password, $confirm, $email, $email2, $gender, $birthdate, $code, $salt);
+		$result = $server->loginServer->register($username, $password, $confirm, $email, $email2, $gender, $birthdate, $code, $salt, $invite_code);
 
 		if ($result) {
 			if (Flux::config('RequireEmailConfirm')) {
@@ -150,6 +151,9 @@ if (count($_POST)) {
 				break;
 			case Flux_RegisterError::INVALID_BIRTHDATE:
 				$errorMessage = Flux::message('InvalidBirthdate');
+				break;
+			case Flux_RegisterError::INVALID_INVITE_CODE:
+				$errorMessage = Flux::message('InvalidInviteCode');
 				break;
 			default:
 				$errorMessage = Flux::message('CriticalRegisterError');

@@ -81,7 +81,12 @@
 			<th><label><?php echo htmlspecialchars(Flux::message('AccountBirthdateLabel')) ?></label></th>
 			<td><?php echo $this->dateField('birthdate',null,0) ?></td>
 		</tr>
-
+		<?php if (Flux::config('RequireInviteCode')): ?>			
+		<tr>
+			<th><label for="invite"><?php echo htmlspecialchars(Flux::message('InviteCodeLabel')) ?></label></th>
+			<td><input type="text" name="invite" id="code_invite" value="<?php echo htmlspecialchars($params->get('invite')) ?>" /></td>
+		</tr>
+		<?php endif ?>	
 		<?php if (Flux::config('UseCaptcha')): ?>
 		<tr>
 			<?php if (Flux::config('ReCaptchaPublicKey') === '...' || Flux::config('ReCaptchaPrivateKey') === '...'): ?>

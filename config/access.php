@@ -202,6 +202,11 @@ return array(
 		'webcommands'	=> array(
 			'index'			=> AccountLevel::ADMIN,
 		),
+		'invite'		=> array(
+			'index'			=> AccountLevel::HIGHGM,
+			'add'			=> AccountLevel::HIGHGM,
+			'delete'			=> AccountLevel::HIGHGM
+		)
 	),
 	// General feature permissions, handled by the modules themselves.
 	'features' => array(

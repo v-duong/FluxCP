@@ -82,7 +82,11 @@ class Flux_LoginServer extends Flux_BaseServer {
 		else {
 			$sql .= 'AND CAST(userid AS BINARY) = ? ';
 		}
-		$sql .= "AND user_pass = MD5(CONCAT(?,`salt`)) LIMIT 1";
+		if ($this->config->get('UseMD5')) {
+			$sql .= "AND user_pass = MD5(CONCAT(?,`salt`)) LIMIT 1";
+		} else {
+			$sql .= "AND user_pass = ? LIMIT 1";
+		}
 		$sth  = $this->connection->getStatement($sql);
 		$sth->execute(array($username, $password));
 		
@@ -98,7 +102,7 @@ class Flux_LoginServer extends Flux_BaseServer {
 	/**
 	 *
 	 */
-	public function register($username, $password, $confirmPassword, $email,$email2, $gender, $birthdate, $securityCode, $salt)
+	public function register($username, $password, $confirmPassword, $email,$email2, $gender, $birthdate, $securityCode, $salt, $invite_code)
 	{
 		if (preg_match('/[^' . Flux::config('UsernameAllowedChars') . ']/', $username)) {
 			throw new Flux_RegisterError('Invalid character(s) used in username', Flux_RegisterError::INVALID_USERNAME);
@@ -161,6 +165,14 @@ class Flux_LoginServer extends Flux_BaseServer {
 			elseif (strtolower($securityCode) !== strtolower(Flux::$sessionData->securityCode)) {
 				throw new Flux_RegisterError('Invalid security code', Flux_RegisterError::INVALID_SECURITY_CODE);
 			}
+		} elseif (Flux::config('RequireInviteCode')) {
+			$sql  = "SELECT code FROM {$this->loginDatabase}.invite_codes WHERE code=? AND usedBy = 0";
+			$sth  = $this->connection->getStatement($sql);
+			$sth->execute(array($invite_code));
+			
+			$res = $sth->fetch();
+			if (!$res) 
+				throw new Flux_RegisterError('Invalid invite code', Flux_RegisterError::INVALID_INVITE_CODE);
 		}
 		
 		$sql  = "SELECT userid FROM {$this->loginDatabase}.login WHERE ";
@@ -199,6 +211,8 @@ class Flux_LoginServer extends Flux_BaseServer {
 		$res = $sth->execute(array($username, $password, $email, $gender, (int)$this->config->getGroupID(), date('Y-m-d', $birthdatestamp), $salt));
 		
 		if ($res) {
+
+
 			$idsth = $this->connection->getStatement("SELECT LAST_INSERT_ID() AS account_id");
 			$idsth->execute();
 			
@@ -210,6 +224,13 @@ class Flux_LoginServer extends Flux_BaseServer {
 			$sth  = $this->connection->getStatement($sql);
 			
 			$sth->execute(array($idres->account_id, $username, $password, $gender, $email, $_SERVER['REMOTE_ADDR']));
+
+			if (Flux::config('RequireInviteCode')) {
+				$sql  = "UPDATE {$this->loginDatabase}.invite_codes SET usedby=? where code=?";
+				$sth  = $this->connection->getStatement($sql);
+				$sth->execute(array($idres->account_id,$invite_code));
+			}
+
 			return $idres->account_id;
 		}
 		else {
@@ -585,6 +606,35 @@ class Flux_LoginServer extends Flux_BaseServer {
 		$ipban = $sth->fetch();
 		
 		if ($ipban) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	public function addInviteCode($code, $createdBy, $time)
+	{
+		$sql  = "INSERT INTO {$this->loginDatabase}.invite_codes (code, createdBy, expirationTime) ";
+		$sql .= "VALUES (?, ?, ?)";
+		$sth  = $this->connection->getStatement($sql);
+		$arr = array($code, $createdBy, $time);
+		
+		if ($sth->execute($arr)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	public function delInviteCode($code)
+	{
+		$sql  = "DELETE FROM {$this->loginDatabase}.invite_codes WHERE code=?";
+		$sth  = $this->connection->getStatement($sql);
+		$arr = array($code);
+		
+		if ($sth->execute($arr)) {
 			return true;
 		}
 		else {

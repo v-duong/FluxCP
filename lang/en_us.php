@@ -102,6 +102,7 @@ return array(
     'MobDatabaseLabel'            => 'Mob Database',
     'JoinUsInFacebookLabel'            => 'Join us on Facebook!',
     'RateUsOnRMSLabel'            => 'Rate us on RMS!',
+	'InviteLabel'            => 'Invite Codes',
 
 	// Module: account
 	// - account/changemail
@@ -212,6 +213,7 @@ return array(
 	'InvalidSecurityCode'     => 'Please enter the security code correctly.',
 	'InvalidPassword'         => 'Your password contains invalid characters.',
 	'InvalidBirthdate'        => 'Invalid birthdate input.',
+	'InvalidInviteCode'        => 'Invalid invite code.',
 	'CriticalRegisterError'   => 'Something bad happened.  Report to an administrator ASAP.',
 	// - account/edit
 	'AccountEditTitle'        => 'Modify Account',
@@ -526,6 +528,19 @@ return array(
 	'IpbanEnterUnbanReason'   => 'Please enter a reason for lifting the IP ban(s).',
 	'IpbanUnbanned'           => 'Lifted selected IP ban(s)!',
 	'IpbanUnbanFailed'        => 'Failed to lift %d of the specified IP unban(s)!',
+
+
+	"InviteCodeLabel"		=> "Invite Code",
+	"InviteCodeHasTimeLabel"		=> "Expires?",
+	"InviteCodeTimeLabel"		=> "Expiration Time",
+	"InviteCodeCreateLabel"		=> "Create Code",
+	"InviteCodeErrorEnterCode"		=> "Please enter something for the invite code.",
+	"InviteCodeFutureDate"		=> "Please select a date in the future.",
+	"InviteCodeErrorLength"			=> "Enter at least 6 characters/numbers.",
+	"InviteCodeErrorCharacter"		=> "Invalid characters found.",
+	"InviteCodeErrorExists"		=> "Code already exists.",
+	"InviteCodeErrorNotExists"		=> "Code does not exist.",
+	"InviteCodeErrorBeenUsed"		=> "Code has already been used.",
 
 	// Module: item
 	// - item/add
