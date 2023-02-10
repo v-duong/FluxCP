@@ -609,10 +609,10 @@ class Flux {
 	 * @return string Returns hashed password.
 	 * @access public
 	 */
-	public static function hashPassword($password)
+	public static function hashPassword($password, $salt)
 	{
 		// Default hashing schema is MD5.
-		return md5($password);
+		return md5(md5($password) . $salt);
 	}
 
 	/**

@@ -23,13 +23,14 @@ if (count($_POST)) {
 		$gender    = $params->get('gender');
 		$birthdate = $params->get('birthdate_date');
 		$code      = $params->get('security_code');
+		$salt 	   = md5(time());
 		
 		if (!($server = Flux::getServerGroupByName($serverGroupName))) {
 			throw new Flux_RegisterError('Invalid server', Flux_RegisterError::INVALID_SERVER);
 		}
 		
 		// Woohoo! Register ;)
-		$result = $server->loginServer->register($username, $password, $confirm, $email, $email2, $gender, $birthdate, $code);
+		$result = $server->loginServer->register($username, $password, $confirm, $email, $email2, $gender, $birthdate, $code, $salt);
 
 		if ($result) {
 			if (Flux::config('RequireEmailConfirm')) {

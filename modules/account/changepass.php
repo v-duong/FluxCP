@@ -56,14 +56,15 @@ if (count($_POST)) {
 		$errorMessage = sprintf(Flux::message('NewPasswordNeedSymbol'), $passwordMinSymbol);
 	}
 	else {
-		$sql = "SELECT user_pass AS currentPassword FROM {$server->loginDatabase}.login WHERE account_id = ?";
+		$sql = "SELECT user_pass AS currentPassword, salt FROM {$server->loginDatabase}.login WHERE account_id = ?";
 		$sth = $server->connection->getStatement($sql);
 		$sth->execute(array($session->account->account_id));
 		
+		$newsalt 		 = md5(time());	
 		$account         = $sth->fetch();
 		$useMD5          = $session->loginServer->config->getUseMD5();
-		$currentPassword = $useMD5 ? Flux::hashPassword($currentPassword) : $currentPassword;
-		$newPassword     = $useMD5 ? Flux::hashPassword($newPassword) : $newPassword;
+		$currentPassword = $useMD5 ? Flux::hashPassword($currentPassword, $account->salt) : $currentPassword;
+		$newPassword     = $useMD5 ? Flux::hashPassword($newPassword, $newsalt) : $newPassword;
 		
 		if ($currentPassword != $account->currentPassword) {
 			$errorMessage = Flux::message('OldPasswordInvalid');
@@ -76,10 +77,10 @@ if (count($_POST)) {
 				$pwChangeTable = Flux::config('FluxTables.ChangePasswordTable');
 				
 				$sql  = "INSERT INTO {$server->loginDatabase}.$pwChangeTable ";
-				$sql .= "(account_id, old_password, new_password, change_ip, change_date) ";
-				$sql .= "VALUES (?, ?, ?, ?, NOW())";
+				$sql .= "(account_id, old_password, new_password, change_ip, change_date, salt) ";
+				$sql .= "VALUES (?, ?, ?, ?, NOW(), ?)";
 				$sth  = $server->connection->getStatement($sql);
-				$sth->execute(array($session->account->account_id, $currentPassword, $newPassword, $_SERVER['REMOTE_ADDR']));
+				$sth->execute(array($session->account->account_id, $currentPassword, $newPassword, $_SERVER['REMOTE_ADDR'], $salt));
 				
 				$session->setMessageData(Flux::message('PasswordHasBeenChanged'));
 				$session->logout();
